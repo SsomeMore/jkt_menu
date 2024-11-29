@@ -1,13 +1,15 @@
-# vorp menu 
+# jkt menu 
 
 RedM menu API
 
 # insatallation
 
-- `ensure vorp_menu` in the top of your resources.cfg 
+- `ensure jkt_menu` in the top of your resources.cfg 
 
 
 # features
+- ability to use mouse cursor
+- scrollable menu using mouse
 - supports all resolutions
 - menu is responsive width and height 
 - descriptions use now wrapping 
@@ -19,8 +21,7 @@ RedM menu API
 
 and many more features
 
-<img width="310" alt="image" src="https://user-images.githubusercontent.com/87246847/177007395-6230bbb6-22cc-459d-8b7b-aa8eced04050.png">
-
+https://youtu.be/rvz-CuPu_Y4
 
 
 
