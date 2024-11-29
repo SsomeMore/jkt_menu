@@ -2,9 +2,9 @@ fx_version 'adamant'
 game 'rdr3'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 
-author 'VORP edit by @outsider' --  SLIZZARN original author
+author 'Ssomemore' --  SLIZZARN original author
 description 'A tool to build RedM menus for your scripts'
-repository 'https://github.com/VORPCORE/jkt_menu'
+repository 'https://github.com/SsomeMore/jkt_menu'
 
 shared_script 'config.lua'
 
@@ -26,6 +26,6 @@ files {
 }
 
 version '1.0'
-vorp_checker 'yes'
-vorp_name '^4Resource version Check^3'
-vorp_github 'https://github.com/VORPCORE/jkt_menu'
+jkt_checker 'yes'
+jkt_name '^4Resource version Check^3'
+jkt_github 'https://github.com/SsomeMore/jkt_menu/'
