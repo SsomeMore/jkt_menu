@@ -18,7 +18,7 @@ MenuData.RegisteredTypes[Config.defaultMenuType] = {
         SetNuiFocus(Config.enableCursor, Config.useMenuWithMouse)
         SetNuiFocusKeepInput(Config.keepInputEnabled)
         -- Trigger event saat menu terbuka
-        TriggerEvent('vorp_menu:opened', namespace, name, data)
+        TriggerEvent('jkt_menu:opened', namespace, name, data)
     end,
     close = function(namespace, name)
         SendNUIMessage({
@@ -30,7 +30,7 @@ MenuData.RegisteredTypes[Config.defaultMenuType] = {
         SetNuiFocus(false, false)
         SetNuiFocusKeepInput(false)
         -- Trigger event saat menu tertutup
-        TriggerEvent('vorp_menu:closed', namespace, name)
+        TriggerEvent('jkt_menu:closed', namespace, name)
     end
 }
 
@@ -63,7 +63,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
             close()
         end
         -- Trigger event saat menu ditutup via fungsi
-        TriggerEvent('vorp_menu:closed', namespace, name)
+        TriggerEvent('jkt_menu:closed', namespace, name)
     end
 
     menu.update = function(query, newData)
@@ -82,14 +82,14 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
             end
         end
         -- Trigger event saat menu diupdate
-        TriggerEvent('vorp_menu:updated', namespace, name, query, newData)
+        TriggerEvent('jkt_menu:updated', namespace, name, query, newData)
     end
 
     menu.addNewElement = function(element)
         if not menu.data.elements then menu.data.elements = {} end -- Inisialisasi jika nil
         menu.data.elements[#menu.data.elements + 1] = element
         -- Trigger event saat elemen ditambahkan
-        TriggerEvent('vorp_menu:elementAdded', namespace, name, element)
+        TriggerEvent('jkt_menu:elementAdded', namespace, name, element)
     end
 
     menu.removeElementByValue = function(value, stop)
@@ -99,7 +99,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
                 if menu.data.elements[i].value == value then
                     table.remove(menu.data.elements, i)
                     -- Trigger event saat elemen dihapus
-                    TriggerEvent('vorp_menu:elementRemoved', namespace, name, value)
+                    TriggerEvent('jkt_menu:elementRemoved', namespace, name, value)
                     if stop then
                         break
                     end
@@ -115,7 +115,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
                 if i == index then
                     table.remove(menu.data.elements, i)
                     -- Trigger event saat elemen dihapus
-                    TriggerEvent('vorp_menu:elementRemoved', namespace, name, index)
+                    TriggerEvent('jkt_menu:elementRemoved', namespace, name, index)
                     if stop then
                         break
                     end
@@ -128,26 +128,26 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         if not MenuData.RegisteredTypes[type] then return end -- Cek nil
         MenuData.RegisteredTypes[type].open(namespace, name, menu.data)
         -- Trigger event saat menu direfresh
-        TriggerEvent('vorp_menu:refreshed', namespace, name)
+        TriggerEvent('jkt_menu:refreshed', namespace, name)
     end
 
     menu.setElement = function(i, key, val)
         if not menu.data.elements then return end -- Cek nil
         menu.data.elements[i][key] = val
         -- Trigger event saat elemen dimodifikasi
-        TriggerEvent('vorp_menu:elementModified', namespace, name, i, key, val)
+        TriggerEvent('jkt_menu:elementModified', namespace, name, i, key, val)
     end
 
     menu.setElements = function(newElements)
         menu.data.elements = newElements
         -- Trigger event saat elemen diset
-        TriggerEvent('vorp_menu:elementsSet', namespace, name, newElements)
+        TriggerEvent('jkt_menu:elementsSet', namespace, name, newElements)
     end
 
     menu.setTitle = function(val)
         menu.data.title = val
         -- Trigger event saat judul diubah
-        TriggerEvent('vorp_menu:titleChanged', namespace, name, val)
+        TriggerEvent('jkt_menu:titleChanged', namespace, name, val)
     end
 
     menu.getElementByIndex = function(index)
@@ -172,7 +172,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
                     if menu.data.elements[i][k] == v then
                         menu.data.elements[i] = nil
                         -- Trigger event saat elemen dihapus
-                        TriggerEvent('vorp_menu:elementRemoved', namespace, name, query)
+                        TriggerEvent('jkt_menu:elementRemoved', namespace, name, query)
                         break
                     end
                 end
@@ -271,7 +271,7 @@ RegisterNUICallback('menu_change', function(data)
     if menu.change ~= nil then
         menu.change(data, menu)
         -- Trigger event saat menu berubah
-        TriggerEvent('vorp_menu:changed', data._namespace, data._name, data)
+        TriggerEvent('jkt_menu:changed', data._namespace, data._name, data)
     end
 end)
 
@@ -286,7 +286,7 @@ RegisterNUICallback('mouse_click', function(data)
             if menu.submit then
                 menu.submit(data, menu)
                 -- Trigger event saat item menu diklik
-                TriggerEvent('vorp_menu:clicked', data._namespace, data._name, data.selected)
+                TriggerEvent('jkt_menu:clicked', data._namespace, data._name, data.selected)
             end
             if menu.change then
                 menu.change(data, menu)
@@ -302,7 +302,7 @@ RegisterNUICallback('update_last_selected', function(data)
     if data.selected ~= nil then
         MenuData.LastSelectedIndex[menuKey] = data.selected
         -- Trigger event saat last selected diupdate
-        TriggerEvent('vorp_menu:lastSelectedUpdated', data._namespace, data._name, data.selected)
+        TriggerEvent('jkt_menu:lastSelectedUpdated', data._namespace, data._name, data.selected)
     end
 end)
 
@@ -412,7 +412,7 @@ AddEventHandler('menuapi:getData', function(cb)
     cb(MenuData)
 end)
 
-AddEventHandler("vorp_menu:getData", function(cb)
+AddEventHandler("jkt_menu:getData", function(cb)
     return cb(MenuData)
 end)
 

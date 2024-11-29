@@ -62,7 +62,7 @@
     }
 
     window.MenuData = {};
-    MenuData.ResourceName = "vorp_menu";
+    MenuData.ResourceName = "jkt_menu";
     MenuData.opened = {};
     MenuData.focus = [];
     MenuData.pos = {};

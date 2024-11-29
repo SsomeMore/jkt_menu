@@ -4,7 +4,7 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 
 author 'VORP edit by @outsider' --  SLIZZARN original author
 description 'A tool to build RedM menus for your scripts'
-repository 'https://github.com/VORPCORE/vorp_menu'
+repository 'https://github.com/VORPCORE/jkt_menu'
 
 shared_script 'config.lua'
 
@@ -28,4 +28,4 @@ files {
 version '1.0'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
-vorp_github 'https://github.com/VORPCORE/vorp_menu'
+vorp_github 'https://github.com/VORPCORE/jkt_menu'
