@@ -26,5 +26,5 @@ https://youtu.be/rvz-CuPu_Y4
 
 
 # Credits
-
+* @{'𝗢𝘂𝘁𝘀𝗶𝗱𝗲𝗿'}
 * @SLIZZARN
