@@ -57,7 +57,6 @@
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 100% 100%;
-	/* opacity: 0.6; */
 }
 
 #item-label {
@@ -71,8 +70,8 @@
 	white-space: nowrap;
 	margin-left: 10px;
 	margin-right: 10px;
+	position: relative;
 }
-
 
 .menu .head {
 	text-align: center;
@@ -91,14 +90,13 @@
 .menu .menu-items {
 	min-height: 5vh;
 	max-height: 39vh;
-	overflow-y: auto; /* Changed from hidden to auto to show scrollbar */
+	overflow-y: auto;
 	inline-size: 480px;
 	overflow-wrap: break-word;
 	margin-left: 10px;
-	scrollbar-width: auto; /* For Firefox */
-	scrollbar-color: #ffffff #000000; /* For Firefox */
+	scrollbar-width: auto;
+	scrollbar-color: #ffffff #000000;
 }
-
 
 .menu .menu-items .menu-item {
 	width: 87%;
@@ -119,9 +117,6 @@
 
 .menu-item {
     cursor: pointer;
-}
-.menu-item:hover {
-    background-color: rgb(255, 10, 10);
 }
 
 .menu .menu-items .menu-item.selected,
@@ -144,9 +139,35 @@
 	font-size: 20px;
 }
 
+.slider-controls {
+    display: flex;
+    align-items: center; /* Vertically centers the items */
+    justify-content: space-between; /* Distributes space between items */
+    gap: 1px; /* Adjust gap as needed */
+    padding: 13px; /* Add padding if necessary */
+}
+
+.slider-btn, #slider-label {
+	background: none;
+	border: none;
+    color: white;
+    flex: 1; /* Allows items to grow equally */
+    text-align: center; /* Centers text within each item */
+}
+
+.slider-btn:hover {
+    color: #ff0000;
+}
+
+.left-btn, .right-btn {
+    border-radius: 3px;
+    width: 30px;
+    height: 25px;
+}
+
 #slider-label {
-	width: 50%;
-	float: left;
+	width: 35%;
+	float: center;
 	text-align: center;
 }
 
@@ -179,7 +200,6 @@ i {
 	margin-right: 7%;
 }
 
-
 .head>span {
 	position: relative;
 	display: inline-block;
@@ -188,7 +208,6 @@ i {
 }
 
 .head>span::before,
-
 .head>span::before {
 	right: 105%;
 	margin-right: 15px;
@@ -199,18 +218,15 @@ i {
 	margin-left: 15px;
 }
 
-
 .arrows {
 	width: 25%;
-	margin-left: 80%;
-	margin-top: -28px;
+	margin-left: 76%;
+	margin-top: -40px;
 }
-
 
 #item-label {
 	text-align: center
 }
-
 
 .menu.align-left {
 	left: 40;
@@ -221,7 +237,6 @@ i {
 .menu.align-top-left {
 	left: 40;
 	top: 40;
-
 }
 
 .menu.align-top {
@@ -259,11 +274,10 @@ i {
 
 .menu.align-center {
 	left: 50%;
-	top: 560;
+	top: 565;
 	transform: translate(-50%, -50%);
 }
 
-/* WebKit scrollbar properties */
 ::-webkit-scrollbar {
 	width: 8px;
 	border-left: 4px solid #000000;
@@ -302,7 +316,6 @@ i {
 	font-family: "crock", HapnaSlabSerif-Medium, serif;
 }
 
-
 @media screen and (min-width: 1920px) and (max-height: 1080px) {
 	.menu {
 		padding: 40px;
@@ -325,7 +338,7 @@ i {
 	}
 
 	#slider-label {
-		width: 50%;
+		width: 30;
 		font-size: 16px;
 	}
 
@@ -339,18 +352,16 @@ i {
 		height: 75px;
 		padding: 12px;
 		margin-top: 5px;
-		margin-left: 1px;
+		margin-left: 2px;
 	}
 
 	.grid-container {
 		grid-template-columns: repeat(4, 75px);
 		grid-gap: 0px 25px;
 	}
-
 }
 
 @media (min-width:3840px) {
-
 	.menu {
 		width: 670px;
 	}
@@ -364,9 +375,21 @@ i {
 		overflow-wrap: break-word;
 		margin-left: 30px;
 	}
-
-
 }
 
+.close-button {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    width: auto;
+    height: auto;
+}
+
+.close-button:hover {
+    color: #ff0000;
+}
 
 /* MADE BY SLIZZARN - DISCORD: slizzarn#1144 GITHUB: https://github.com/slizzarn-fivem */

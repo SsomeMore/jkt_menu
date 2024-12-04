@@ -1,8 +1,20 @@
 (function () {
     let MenuTpl = `
     <div id="menu_{{_namespace}}_{{_name}}" class="menu{{#align}} align-{{align}}{{/align}}">
-        <div class="head"><span>{{{title}}}</span></div>
-        <div class="desciptions">{{{subtext}}}</div>
+        <div class="head">
+            <span>{{{title}}}</span>
+        </div>
+        <div class="desciptions">
+            {{{subtext}}}
+            <div class="close-button">
+                {{#lastmenu}}
+                <i class="fa-solid fa-circle-chevron-left"></i>
+                {{/lastmenu}}
+                {{^lastmenu}}
+                <i class="fa-solid fa-circle-xmark"></i>
+                {{/lastmenu}}
+            </div>
+        </div>
         <div class="topline"></div>
         <div class="menu-items">
             {{#isGrid}}
@@ -28,9 +40,13 @@
                     {{#image}}<img class="item-image" src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>{{/image}}
                     <div id="item-label" {{#image}}class="image-pad"{{/image}}>{{{label}}}</div>
                     <div class="arrows">
-                        {{#isSlider}}<i class="fas fa-arrow-circle-left"></i>{{/isSlider}}
-                        <div id="slider-label">{{{sliderLabel}}}</div>
-                        {{#isSlider}}<i class="fas fa-arrow-alt-circle-right"></i>{{/isSlider}}
+                        {{#isSlider}}
+                        <div class="slider-controls">
+                            <button class="slider-btn left-btn"><i class="fa-solid fa-circle-arrow-left"></i></button>
+                            <div id="slider-label">{{{sliderLabel}}}</div>
+                            <button class="slider-btn right-btn"><i class="fa-solid fa-circle-arrow-right"></i></button>
+                        </div>
+                        {{/isSlider}}
                     </div>
                 </div>
             {{/elements}}
@@ -53,57 +69,148 @@
             const elementRect = element.getBoundingClientRect();
             const containerRect = menuContainer.getBoundingClientRect();
 
-            if (elementRect.bottom > containerRect.bottom) {
-                menuContainer.scrollTop += elementRect.bottom - containerRect.bottom;
-            } else if (elementRect.top < containerRect.top) {
-                menuContainer.scrollTop -= containerRect.top - elementRect.top;
+            if (elementRect.bottom > containerRect.bottom || elementRect.top < containerRect.top) {
+                element.scrollIntoView({
+                    behavior: "auto",
+                    block: block
+                });
             }
         }
     }
 
-    window.MenuData = {};
-    MenuData.ResourceName = "jkt_menu";
-    MenuData.opened = {};
-    MenuData.focus = [];
-    MenuData.pos = {};
+    window.MenuData = {
+        ResourceName: "jkt_menu",
+        opened: {},
+        focus: [],
+        pos: {},
+    };
     let lastmenu;
     let currentNamespace, currentName, menuElements;
-    let lastClickTime = 0;
-    const doubleClickDelay = 300; // 300ms untuk double click
 
     $(document).on('click', '.menu-option', function(event) {
-        const currentTime = new Date().getTime();
         const index = $(this).index();
         const focused = MenuData.getFocused();
         
         if (focused) {
-            // Update visual selection
-            $('.menu-option').removeClass('selected');
-            $(this).addClass('selected');
-
-            // Update menu position
-            MenuData.pos[focused.namespace][focused.name] = index;
-
-            // Update elements selection state
             const menu = MenuData.opened[focused.namespace][focused.name];
-            for (let i = 0; i < menu.elements.length; i++) {
-                menu.elements[i].selected = (i === index);
-            }
+            const currentIndex = MenuData.pos[focused.namespace][focused.name];
 
-            // Send menu change event
-            MenuData.change(focused.namespace, focused.name, menu.elements[index]);
-            
-            // Check if double clicked
-            if (currentTime - lastClickTime < doubleClickDelay) {
-                // Submit menu on double click
+            if (currentIndex === index) {
+                // Jika item yang diklik sudah dipilih, buka menu
                 MenuData.submit(focused.namespace, focused.name, menu.elements[index]);
+            } else {
+                // Jika item yang diklik belum dipilih, pindahkan kotak seleksi
+                $('.menu-option').removeClass('selected');
+                $(this).addClass('selected');
+                MenuData.pos[focused.namespace][focused.name] = index;
+                for (let i = 0; i < menu.elements.length; i++) {
+                    menu.elements[i].selected = (i === index);
+                }
+
+                $.post('https://' + MenuData.ResourceName + '/update_last_selected', JSON.stringify({
+                    _namespace: focused.namespace,
+                    _name: focused.name,
+                    selected: index
+                }));
+
+                MenuData.change(focused.namespace, focused.name, menu.elements[index]);
+                MenuData.render();
+                $.post("https://" + MenuData.ResourceName + "/playsound");
             }
         }
+    });
 
-        lastClickTime = currentTime;
-        
-        // Scroll to selected element
-        scrollToElement(this);
+    $(document).on('click', '.left-btn', function(e) {
+        e.stopPropagation();
+        const focused = MenuData.getFocused();
+        if (focused) {
+            const menu = MenuData.opened[focused.namespace][focused.name];
+            const pos = MenuData.pos[focused.namespace][focused.name];
+            const elem = menu.elements[pos];
+            
+            // Select the button's parent menu-option
+            $(this).closest('.menu-option').click();
+
+            if (elem.type === 'slider') {
+                let min = typeof elem.min == "undefined" ? 0 : elem.min;
+                if (elem.value > min) {
+                    if (typeof elem.hop != "undefined") {
+                        if (Number.isInteger(elem.hop)) {
+                            elem.value = elem.value - elem.hop;
+                        } else {
+                            elem.value = (Number(elem.value) - Number(elem.hop)).toFixed(1);
+                        }
+                        elem.value = Number(elem.value);
+                        if (elem.value < min) {
+                            elem.value = min;
+                        }
+                    } else {
+                        elem.value--;
+                    }
+                    MenuData.change(focused.namespace, focused.name, elem);
+                    MenuData.submit(focused.namespace, focused.name, elem);
+                    MenuData.render();
+                }
+            }
+        }
+    });
+
+    $(document).on('click', '.right-btn', function(e) {
+        e.stopPropagation();
+        const focused = MenuData.getFocused();
+        if (focused) {
+            const menu = MenuData.opened[focused.namespace][focused.name];
+            const pos = MenuData.pos[focused.namespace][focused.name];
+            const elem = menu.elements[pos];
+
+            // Select the button's parent menu-option
+            $(this).closest('.menu-option').click();
+
+            if (elem.type === 'slider') {
+                if (typeof elem.options != "undefined" && elem.value < elem.options.length - 1) {
+                    elem.value++;
+                    MenuData.change(focused.namespace, focused.name, elem);
+                    MenuData.submit(focused.namespace, focused.name, elem);
+                }
+
+                if (typeof elem.max != "undefined" && elem.value < elem.max) {
+                    if (typeof elem.hop != "undefined") {
+                        let min = typeof elem.min == "undefined" ? 0 : elem.min;
+                        if (min > 0 && min == elem.value) {
+                            elem.value = 0;
+                        }
+                        if (Number.isInteger(elem.hop)) {
+                            elem.value = elem.value + elem.hop;
+                        } else {
+                            elem.value = (Number(elem.value) + Number(elem.hop)).toFixed(1);
+                        }
+                        elem.value = Number(elem.value);
+                        if (elem.value > elem.max) {
+                            elem.value = elem.max;
+                        }
+                    } else {
+                        elem.value++;
+                    }
+                    MenuData.change(focused.namespace, focused.name, elem);
+                    MenuData.submit(focused.namespace, focused.name, elem);
+                    MenuData.render();
+                }
+            }
+        }
+    });
+
+    $(document).on('click', '.close-button', function() {
+        const focused = MenuData.getFocused();
+        if (focused) {
+            if (lastmenu != null && lastmenu != "undefined" && lastmenu != "") {
+                // Jika dalam submenu, kembali ke menu sebelumnya
+                MenuData.submit(focused.namespace, focused.name, "backup");
+            } else {
+                // Jika di menu utama, tutup menu
+                MenuData.cancel(focused.namespace, focused.name);
+                $.post("https://" + MenuData.ResourceName + "/closeui", JSON.stringify({}));
+            }
+        }
     });
 
     MenuData.open = function (namespace, name, data) {
@@ -138,6 +245,7 @@
             data.elements[i]._namespace = namespace;
             data.elements[i]._name = name;
         }
+
         let selectedIndex = (typeof MenuData.pos[namespace][name] !== "undefined") ? MenuData.pos[namespace][name] : 0;
         for (let i = 0; i < data.elements.length; i++) {
             data.elements[i].selected = (i === selectedIndex);
@@ -231,11 +339,18 @@
             }
         }
 
-        if (typeof focused != "undefined") {
+        if (focused && focused.namespace && focused.name) {
             $("#menu_" + focused.namespace + "_" + focused.name).show();
         }
 
         $(menuContainer).show();
+        
+        if (focused && focused.namespace && focused.name) {
+            let selectedElement = $("#menu_" + focused.namespace + "_" + focused.name).find(".menu-item.selected, .grid-item.selected");
+            if (selectedElement.length > 0) {
+                scrollToElement(selectedElement[0]);
+            }
+        }
     };
 
     MenuData.submit = function (namespace, name, data) {
@@ -290,8 +405,17 @@
     };
 
     window.onData = (data) => {
+        if (!data || !data.ak_menubase_action) {
+            console.error('Data tidak valid');
+            return;
+        }
+
         switch (data.ak_menubase_action) {
             case "openMenu": {
+                if (!data.ak_menubase_namespace || !data.ak_menubase_name || !data.ak_menubase_data) {
+                    console.error('Data menu tidak lengkap');
+                    return;
+                }
                 MenuData.open(
                     data.ak_menubase_namespace,
                     data.ak_menubase_name,
@@ -301,6 +425,10 @@
             }
 
             case "closeMenu": {
+                if (!data.ak_menubase_namespace || !data.ak_menubase_name) {
+                    console.error('Data penutupan menu tidak lengkap');
+                    return;
+                }
                 MenuData.close(data.ak_menubase_namespace, data.ak_menubase_name);
                 break;
             }
@@ -362,7 +490,6 @@
                                 menu.elements[i].selected = (i == MenuData.pos[focused.namespace][focused.name]);
                             }
 
-
                             $.post('https://' + MenuData.ResourceName + '/update_last_selected', JSON.stringify({
                                 _namespace: focused.namespace,
                                 _name: focused.name,
@@ -418,7 +545,6 @@
                             if (selectedElement.length > 0) {
                                 scrollToElement(selectedElement[0]);
                             }
-
                         }
 
                         break;
@@ -477,7 +603,6 @@
 
                         break;
                     }
-
 
                     case "RIGHT": {
                         let focused = MenuData.getFocused();

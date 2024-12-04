@@ -16,6 +16,7 @@ MenuData.RegisteredTypes[Config.defaultMenuType] = {
         })
         -- Aktifkan kursor saat menu terbuka
         SetNuiFocus(Config.enableCursor, Config.useMenuWithMouse)
+        -- Hanya set KeepInput jika vorp_input tidak aktif
         SetNuiFocusKeepInput(Config.keepInputEnabled)
         -- Trigger event saat menu terbuka
         TriggerEvent('jkt_menu:opened', namespace, name, data)
@@ -28,7 +29,7 @@ MenuData.RegisteredTypes[Config.defaultMenuType] = {
         })
         -- Nonaktifkan kursor saat menu tertutup
         SetNuiFocus(false, false)
-        SetNuiFocusKeepInput(false)
+        SetNuiFocusKeepInput(true)
         -- Trigger event saat menu tertutup
         TriggerEvent('jkt_menu:closed', namespace, name)
     end
@@ -242,6 +243,7 @@ local function GetMousePosition()
 end
 
 RegisterNUICallback('menu_submit', function(data)
+    SetNuiFocusKeepInput(true)
     PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
     if menu and menu.submit ~= nil then
@@ -423,3 +425,21 @@ end)
 exports("GetMenuData", function()
     return MenuData
 end)
+
+-- Tambahkan event handler untuk input events
+AddEventHandler('vorpinputs:getInput', function()
+    SetNuiFocusKeepInput(false)
+end)
+
+AddEventHandler('vorpinputs:getInputsWithInputType', function()
+    SetNuiFocusKeepInput(false)
+end)
+
+AddEventHandler('vorpinputs:advancedInput', function()
+    SetNuiFocusKeepInput(false)
+end)
+
+RegisterCommand('close', function()
+    MenuData.CloseAll()
+    print("Menu ditutup.")
+end, false)
