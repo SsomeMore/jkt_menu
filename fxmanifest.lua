@@ -25,7 +25,7 @@ files {
 	'html/fonts/*ttf',
 }
 
-version '1.0.1'
+version '1.0.2'
 jkt_checker 'yes'
 jkt_name '^4Resource version Check^3'
 jkt_github 'https://github.com/SsomeMore/jkt_menu'

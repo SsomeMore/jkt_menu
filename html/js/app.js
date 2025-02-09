@@ -8,10 +8,10 @@
             {{{subtext}}}
             <div class="close-button">
                 {{#lastmenu}}
-                <i class="fa-solid fa-circle-chevron-left"></i>
+                <i class="fa-solid fa-arrow-left"></i>
                 {{/lastmenu}}
                 {{^lastmenu}}
-                <i class="fa-solid fa-circle-xmark"></i>
+                <i class="fa-solid fa-xmark"></i>
                 {{/lastmenu}}
             </div>
         </div>
@@ -63,6 +63,64 @@
         <br>
     </div>`;
 
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    $(document).on('mousedown', '.head', function(e) {
+        const menuElement = $(this).parent()[0];
+        const menuId = menuElement.id;
+        
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+
+        const savedPosition = localStorage.getItem(menuId);
+        if (savedPosition) {
+            const pos = JSON.parse(savedPosition);
+            xOffset = pos.x;
+            yOffset = pos.y;
+            setTranslate(pos.x, pos.y, menuElement);
+        }
+
+        if (e.target === this) {
+            isDragging = true;
+        }
+
+        function dragHandler(e) {
+            if (isDragging) {
+                e.preventDefault();
+                
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                setTranslate(currentX, currentY, menuElement);
+                
+                localStorage.setItem(menuId, JSON.stringify({
+                    x: currentX,
+                    y: currentY
+                }));
+            }
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+        }
+
+        $(document).on('mousemove', dragHandler);
+        
+        $(document).on('mouseup', function() {
+            isDragging = false;
+            $(document).off('mousemove', dragHandler);
+        });
+    });
+
     function scrollToElement(element, block = "nearest") {
         if (element) {
             const menuContainer = document.querySelector(".menu .menu-items");
@@ -88,6 +146,8 @@
     let currentNamespace, currentName, menuElements;
 
     $(document).on('click', '.menu-option', function(event) {
+        event.stopPropagation();
+        
         const index = $(this).index();
         const focused = MenuData.getFocused();
         
@@ -96,10 +156,8 @@
             const currentIndex = MenuData.pos[focused.namespace][focused.name];
 
             if (currentIndex === index) {
-                // Jika item yang diklik sudah dipilih, buka menu
                 MenuData.submit(focused.namespace, focused.name, menu.elements[index]);
             } else {
-                // Jika item yang diklik belum dipilih, pindahkan kotak seleksi
                 $('.menu-option').removeClass('selected');
                 $(this).addClass('selected');
                 MenuData.pos[focused.namespace][focused.name] = index;
@@ -114,7 +172,17 @@
                 }));
 
                 MenuData.change(focused.namespace, focused.name, menu.elements[index]);
+                
+                const menuElement = document.getElementById(`menu_${focused.namespace}_${focused.name}`);
+                const currentTransform = menuElement.style.transform;
+                
                 MenuData.render();
+                
+                const newMenuElement = document.getElementById(`menu_${focused.namespace}_${focused.name}`);
+                if (newMenuElement) {
+                    newMenuElement.style.transform = currentTransform;
+                }
+                
                 $.post("https://" + MenuData.ResourceName + "/playsound");
             }
         }
@@ -268,6 +336,19 @@
         });
 
         MenuData.render();
+        
+        const menuId = `menu_${namespace}_${name}`;
+        const savedPosition = localStorage.getItem(menuId);
+        if (savedPosition) {
+            const pos = JSON.parse(savedPosition);
+            const menuElement = document.getElementById(menuId);
+            if (menuElement) {
+                menuElement.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+                xOffset = pos.x;
+                yOffset = pos.y;
+            }
+        }
+
         let selectedElement = $("#menu_" + namespace + "_" + name).find(".menu-item.selected, .grid-item.selected");
         if (selectedElement.length > 0) {
             scrollToElement(selectedElement[0]);
@@ -293,6 +374,19 @@
     MenuData.render = function () {
         let menuContainer = document.getElementById("menus");
         let focused = MenuData.getFocused();
+        let currentTransforms = {};
+        
+        // Simpan semua posisi menu yang ada sebelum render
+        for (let namespace in MenuData.opened) {
+            for (let name in MenuData.opened[namespace]) {
+                const menuId = `menu_${namespace}_${name}`;
+                const menuElement = document.getElementById(menuId);
+                if (menuElement) {
+                    currentTransforms[menuId] = menuElement.style.transform;
+                }
+            }
+        }
+
         menuContainer.innerHTML = "";
         $(menuContainer).hide();
 
@@ -336,6 +430,17 @@
                 let menu = $(Mustache.render(MenuTpl, view))[0];
                 $(menu).hide();
                 menuContainer.appendChild(menu);
+
+                // Terapkan posisi tersimpan dari localStorage atau posisi sebelumnya
+                const menuId = `menu_${namespace}_${name}`;
+                const savedPosition = localStorage.getItem(menuId);
+                
+                if (savedPosition) {
+                    const pos = JSON.parse(savedPosition);
+                    menu.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+                } else if (currentTransforms[menuId]) {
+                    menu.style.transform = currentTransforms[menuId];
+                }
             }
         }
 

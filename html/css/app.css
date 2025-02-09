@@ -25,7 +25,7 @@
 	font-family: "crock", crock, serif;
 	min-width: 20vw;
 	height: auto;
-	color: #fff;
+	color: white;
 	position: absolute;
 	padding: 35px;
 	background-image: url(inkroller_1a.png);
@@ -33,6 +33,9 @@
 	background-position: center;
 	margin-top: -10px;
 	background-size: 100% 100%;
+	position: absolute;
+	user-select: none;
+	transform: translate3d(0, 0, 0);
 }
 
 .topline {
@@ -71,12 +74,13 @@
 	margin-left: 10px;
 	margin-right: 10px;
 	position: relative;
+	cursor: move;
 }
 
 .menu .head {
 	text-align: center;
 	height: 100px;
-	color: #fff;
+	color: white;
 	font-weight: 300;
 	font-size: 35px;
 	background-image: url(menu_header_1a.png);
@@ -150,9 +154,9 @@
 .slider-btn, #slider-label {
 	background: none;
 	border: none;
-    color: white;
-    flex: 1; /* Allows items to grow equally */
-    text-align: center; /* Centers text within each item */
+	color: white;
+	flex: 1; /* Allows items to grow equally */
+	text-align: center; /* Centers text within each item */
 }
 
 .slider-btn:hover {
@@ -290,12 +294,12 @@ i {
 
 ::-webkit-scrollbar-thumb {
 	background: #ffffff;
-	border-left: 4px solid #000000;
+	border-left: 4px solid #ffffff;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: #ffffff;
-	border-left: 4px solid #000000;
+	background: #d00000;
+	border-left: 4px solid #d00000;
 }
 
 .grid-container {
@@ -379,8 +383,8 @@ i {
 
 .close-button {
     position: absolute;
-    right: 20px;
-    top: 20px;
+    right: 25px;
+    top: 13px;
     cursor: pointer;
     color: white;
     font-size: 20px;
